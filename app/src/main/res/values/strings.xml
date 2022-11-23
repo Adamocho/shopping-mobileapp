@@ -1,0 +1,45 @@
+<resources>
+    <string name="app_name">Orders with SQLite </string>
+    <string name="order_list">Orders list</string>
+    <string name="send_sms">Send sms</string>
+    <string name="send_email">Send email</string>
+    <string name="share">Share</string>
+    <string name="log_out">Log out</string>
+    <string name="settings">Settings</string>
+    <string name="about">About</string>
+    <string name="acc_text">ACCESSORIES</string>
+    <string name="sum_price_label">SUM PRICE</string>
+    <string name="order_btn">Place order</string>
+
+    <string-array name="camera_desc">
+        <item>Canon F1 - Professional 35mm SLR analog camera with FD lens mount.</item>
+        <item>Olympus OM1 - Outstanding build quality. One of the best 35mm SLR film camera.</item>
+        <item>Nikon FM2/T - This SLR 35mm film camera is a true monstrosity made out of titanium for professionals only.</item>
+    </string-array>
+
+    <string-array name="camera_price">
+        <item>500</item>
+        <item>700</item>
+        <item>1200</item>
+    </string-array>
+
+    <string-array name="accessories_desc">
+        <item>Protra 400 - Considered to be the best color film in existence.</item>
+        <item>Ilford Delta 3200 - High sensitivity B&amp;W film made for low light situations.</item>
+        <item>CineStill 800t - Astonishing color film, which creates memorable results.</item>
+        <item>Ilford HP5 Plus - Professional B&amp;W film suitable for every challenge.</item>
+        <item>Kodak Gold 200 - Cheap film preserving it\'s nostalgic mood.</item>
+        <item>Hama Tripod - Obligatory photography equipment.</item>
+        <item>Remote shutter release -  Still photos deemed impossible without it.</item>
+    </string-array>
+
+    <string-array name="accessories_price">
+        <item>20</item>
+        <item>12</item>
+        <item>22</item>
+        <item>15</item>
+        <item>10</item>
+        <item>40</item>
+        <item>5</item>
+    </string-array>
+</resources>
