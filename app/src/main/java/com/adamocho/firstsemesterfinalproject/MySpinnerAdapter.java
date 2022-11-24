@@ -47,18 +47,15 @@ public class MySpinnerAdapter extends BaseAdapter {
     }
 
     @Override
-    public View getView(int i, View view, ViewGroup viewGroup) {
+    public View getView(int i, View view, ViewGroup viewGroup)
+    {
         view = layoutInflater.inflate(R.layout.main_spinner_items, null);
         imageView = view.findViewById(R.id.spinner_image_view);
         textView = view.findViewById(R.id.spinner_text_view);
         priceView = view.findViewById(R.id.spinner_price_view);
         imageView.setImageResource(img[i]);
         textView.setText(desc[i]);
-        priceView.setText(String.format("Price: %s$", price[i]));
-
-
+        priceView.setText(String.format(context.getResources().getString(R.string.price) + ": %s$", price[i]));
         return view;
     }
-
-
 }

@@ -1,38 +1,58 @@
 <resources>
-    <string name="app_name">Orders with SQLite </string>
-    <string name="order_list">Orders list</string>
-    <string name="send_sms">Send sms</string>
-    <string name="send_email">Send email</string>
-    <string name="share">Share</string>
-    <string name="log_out">Log out</string>
-    <string name="settings">Settings</string>
-    <string name="about">About</string>
-    <string name="acc_text">ACCESSORIES</string>
-    <string name="sum_price_label">SUM PRICE</string>
-    <string name="order_btn">Place order</string>
+    <string name="app_name">"Zamówienia z SQLite "</string>
+    <string name="order_list">Lista zamówień</string>
+    <string name="send_sms">Wyślij SMS</string>
+    <string name="send_email">Wyślij EMAIL</string>
+    <string name="share">Udostępnij</string>
+    <string name="log_out">Wyloguj</string>
+    <string name="settings">Ustawienia</string>
+    <string name="about">Autor</string>
+    <string name="acc_text">Akcesoria</string>
+    <string name="sum_price_label">Suma</string>
+    <string name="order_btn">Zamów</string>
+    <string name="about_author">Użytkownik <b>Adamocho</b> jest autorem tej aplikacji.</string>
+    <string name="about_more">Kod dostępny jest <a href="https://github.com/Adamocho/shopping-mobileapp">tutaj</a></string>
+    <string name="order_list_btn">Anuluj</string>
+    <string name="username_label">Użytkownik</string>
+    <string name="password_label">Hasło</string>
+    <string name="login_btn">Zaloguj</string>
+    <string name="register_btn">Zarejestruj</string>
+    <string name="title_activity_login">Aktywność logowania</string>
+    <string name="prompt_email">Email</string>
+    <string name="prompt_password">Password</string>
+    <string name="action_sign_in">Zaloguj lub zarejestruj</string>
+    <string name="action_sign_in_short">Zaloguj</string>
+    <string name="welcome">Witaj !</string>
+    <string name="invalid_username">Niepoprawny użytkownik</string>
+    <string name="invalid_username_len">Użytkownik musi mieć >5 znaków</string>
+    <string name="invalid_password">Niepoprawne hasło</string>
+    <string name="invalid_password_len">Hasło musi mieć >5 znaków</string>
+    <string name="login_failed">Logowanie zakończone niepowodzeniem</string>
+    <string name="user_exists">Ten użytkownik już istnieje!</string>
+    <string name="user_new">Stworzono użytkownika i zalogowano!</string>
+    <string name="price">Cena</string>
+    <string name="sum">Suma</string>
+    <string name="sumiszero">Nic nie zaznaczono!</string>
 
     <string-array name="camera_desc">
-        <item>Canon F1 - Professional 35mm SLR analog camera with FD lens mount.</item>
-        <item>Olympus OM1 - Outstanding build quality. One of the best 35mm SLR film camera.</item>
-        <item>Nikon FM2/T - This SLR 35mm film camera is a true monstrosity made out of titanium for professionals only.</item>
+        <item>Canon F1 - Profesjonalny aparat 35mm z obiektywem FD.</item>
+        <item>Olympus OM1 - Niebywała jakość wykonania. Jeden z najlepszych aparatów 35mm na rynku.</item>
+        <item>Nikon FM2/T - Prawdziwy tytanowy potwór stworzony dla profesjonalistów.</item>
     </string-array>
-
+    <string-array name="accessories_desc">
+        <item>Protra 400 - Uważany za najlepszy kolorowy film wszechczasów.</item>
+        <item>Ilford Delta 3200 - Czarno-biała klisza o wysokiej czułości stosowana w niedoświetlonych sytuacjach.</item>
+        <item>CineStill 800t - Nieziemska klisza kolorowa, tworząca pamiętliwe momenty.</item>
+        <item>Ilford HP5 Plus - Profesjonalna czarno-biała klisza na każdą sytuację.</item>
+        <item>Kodak Gold 200 - Tani film z nostalgicznymi rezultatami.</item>
+        <item>Hama Tripod - Obowiązkowy dla każdego fotografa.</item>
+        <item>Remote shutter release -  Dzięki temu urządzeniu zdjęcia nie wyjdą poruszone.</item>
+    </string-array>
     <string-array name="camera_price">
         <item>500</item>
         <item>700</item>
         <item>1200</item>
     </string-array>
-
-    <string-array name="accessories_desc">
-        <item>Protra 400 - Considered to be the best color film in existence.</item>
-        <item>Ilford Delta 3200 - High sensitivity B&amp;W film made for low light situations.</item>
-        <item>CineStill 800t - Astonishing color film, which creates memorable results.</item>
-        <item>Ilford HP5 Plus - Professional B&amp;W film suitable for every challenge.</item>
-        <item>Kodak Gold 200 - Cheap film preserving it\'s nostalgic mood.</item>
-        <item>Hama Tripod - Obligatory photography equipment.</item>
-        <item>Remote shutter release -  Still photos deemed impossible without it.</item>
-    </string-array>
-
     <string-array name="accessories_price">
         <item>20</item>
         <item>12</item>
