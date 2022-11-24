@@ -14,12 +14,28 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 public class ItemAdapterImage extends RecyclerView.Adapter<ItemAdapterImage.ViewHolder> {
     String[] item_desc;
     String[] item_price;
     int[] item_imgs;
     boolean[] item_checked;
     Context context;
+    int[] item_ids = {
+            10,
+            20,
+            30,
+            40,
+            50,
+            60,
+            70,
+            80,
+            90,
+            100
+    };
 
     public ItemAdapterImage(String[] item_desc, int[] item_imgs, String[] item_price, Context context) {
         this.item_desc = item_desc;
@@ -44,11 +60,35 @@ public class ItemAdapterImage extends RecyclerView.Adapter<ItemAdapterImage.View
         holder.priceView.setText(String.format("Price: %s$", item_price[index]));
         holder.checkBox.setOnClickListener(view -> {
             CheckBox checkBox = (CheckBox) view;
-            Log.i(TAG, holder.getAdapterPosition() + " " + checkBox.isChecked());
+//            Log.i(TAG, holder.getAdapterPosition() + " " + checkBox.isChecked());
             item_checked[index] = checkBox.isChecked();
 
-            ((MainActivity) context).refreshOrderPrice();
-//             Do I just add it to the JSON string and then update the sum?
+            try
+            {
+                boolean found = false;
+                JSONArray jarray = ((MainActivity) context).orderJSON.getJSONArray("products");
+                for (int i = 0; i < jarray.length(); i++) {
+
+                    if (jarray.getJSONObject(i).getInt("id") == item_ids[index]) {
+                        jarray.remove(i);
+                        found = true;
+                        break;
+                    }
+                }
+                if (!found) {
+                    JSONObject object = MainActivity.getProduct(
+                            item_ids[index],
+                            item_desc[index].split("-")[0].trim(),
+                            1,
+                            Integer.parseInt(item_price[index]));
+                    jarray.put(object);
+                }
+
+                Log.i(TAG, "JSON: " + ((MainActivity) context).orderJSON);
+            } catch (JSONException e) {}
+
+            //            ((MainActivity) context).refreshOrderPrice();
+            ((MainActivity) context).refreshOrderPriceWithJSON();
         });
     }
 

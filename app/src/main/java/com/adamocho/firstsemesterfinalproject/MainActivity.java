@@ -15,19 +15,22 @@ import android.widget.AdapterView;
 import android.widget.Spinner;
 import android.widget.TextView;
 
+import com.google.android.material.slider.Slider;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.Locale;
+import java.util.UUID;
 
 public class MainActivity extends AppCompatActivity implements AdapterView.OnItemSelectedListener
 {
     public static final String TAG = "OrdersWithSQLite";
-    private static int sumPrice = 0;
+    private static int mainIndex = -1;
+    private static int previous = -1;
     private int basePrice = 0;
     FeedReaderContract dbHelper;
-    Menu menu;
     Spinner main_spinner;
     String[] camera_desc;
     String[] acc_desc;
@@ -36,12 +39,22 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     RecyclerView recyclerView;
     LinearLayoutManager linearLayoutManager;
     TextView sumPriceView;
+    Slider slider;
+
     JSONObject orderJSON;
+
+    public static final String username = "Johnny";
 
     int[] camera_pics = {
             R.drawable.canon_f1,
             R.drawable.olympus_om1,
             R.drawable.nikon_fm2_t,
+    };
+
+    int[] camera_ids = {
+            7,
+            5,
+            3,
     };
 
     int[] acc_pics = {
@@ -71,6 +84,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         main_spinner = findViewById(R.id.main_item_spinner);
         recyclerView = findViewById(R.id.acc_recycler_view);
         sumPriceView = findViewById(R.id.sum_price_view);
+        slider = findViewById(R.id.main_slider);
 
         camera_desc = getResources().getStringArray(R.array.camera_desc);
         acc_desc = getResources().getStringArray(R.array.accessories_desc);
@@ -86,6 +100,17 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
         ItemAdapterImage accItemAdapter = new ItemAdapterImage(acc_desc, acc_pics, acc_price, this);
         recyclerView.setAdapter(accItemAdapter);
+
+        slider.addOnChangeListener((slider1, value, fromUser) -> {
+            try
+            {
+                if (mainIndex != -1)
+                    orderJSON.getJSONArray("products").getJSONObject(mainIndex).put("qty", value);
+            } catch (JSONException e) {}
+
+//            refreshOrderPrice();
+            refreshOrderPriceWithJSON();
+        });
     }
 
     @Override
@@ -143,8 +168,35 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                 basePrice = Integer.parseInt(camera_price[position]);
                 break;
         }
+        try
+        {
+            JSONArray jarray = orderJSON.getJSONArray("products");
+
+            if (mainIndex == -1) {
+                mainIndex = jarray.length();
+                JSONObject object = MainActivity.getProduct(
+                        camera_ids[position],
+                        camera_desc[position].split("-")[0].trim(),
+                        (int) slider.getValue(),
+                        Integer.parseInt(camera_price[position]));
+                jarray.put(object);
+            } else if (previous != position) {
+                jarray.remove(mainIndex);
+                mainIndex = jarray.length();
+                JSONObject object = MainActivity.getProduct(
+                        camera_ids[position],
+                        camera_desc[position].split("-")[0].trim(),
+                        (int) slider.getValue(),
+                        Integer.parseInt(camera_price[position]));
+                jarray.put(object);
+            }
+            previous = position;
+        } catch (JSONException e) {}
+
+        Log.i(TAG, "JSON: " + orderJSON);
         Log.i(TAG, "Item " + position + " selected. Base price: " + basePrice);
-        refreshOrderPrice();
+//        refreshOrderPrice();
+        refreshOrderPriceWithJSON();
     }
 
     @Override
@@ -153,27 +205,40 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     }
 
     public void refreshOrderPrice() {
-        int accPrice = 0;
-//        ItemAdapterImage.ViewHolder holder;
-//        ItemAdapterImage adapter = (ItemAdapterImage) recyclerView.getAdapter();
-//        int len = recyclerView.getAdapter().getItemCount();
-//        for (int i = 0; i <= len; i++) {
-//            if (adapter.getItemChecked(i))
-//                accPrice += adapter.getItemPrice(i);
-//        }
-//        Log.i(TAG, "refreshing order price: " + basePrice + " + " + accPrice + " " + len);
-
-        accPrice = ((ItemAdapterImage) recyclerView.getAdapter()).getSumOfChecked();
-        sumPrice = basePrice + accPrice;
-        Log.i(TAG, "refreshing order price: " + basePrice + " + " + accPrice);
+        int accPrice = ((ItemAdapterImage) recyclerView.getAdapter()).getSumOfChecked();
+        int sumPrice = (int) ((basePrice * slider.getValue()) + accPrice);
+//        Log.i(TAG, "refreshing order price..");
 
         sumPriceView.setText(String.format(Locale.US, "%d$", sumPrice));
+        try
+        {
+            orderJSON.put("sum", sumPrice);
+        } catch (JSONException e)
+        {
+            e.printStackTrace();
+        }
     }
 
-    private JSONObject getProduct(int id, String name, int price) throws JSONException {
+    public void refreshOrderPriceWithJSON() {
+        int sum = 0;
+
+        try {
+            JSONArray prods = orderJSON.getJSONArray("products");
+            for (int i = 0; i < prods.length(); i++) {
+                JSONObject obj = prods.getJSONObject(i);
+                sum += obj.getInt("price") * obj.getInt("qty");
+            }
+            orderJSON.put("sum", sum);
+        } catch (JSONException e) {e.printStackTrace();}
+
+        sumPriceView.setText(String.format(Locale.US, "%d$", sum));
+    }
+
+    public static JSONObject getProduct(int id, String name, int qty, int price) throws JSONException {
         JSONObject product = new JSONObject();
         product .put("id", id);
         product .put("name", name);
+        product .put("qty", qty);
         product .put("price", price);
         return product ;
     }
@@ -190,14 +255,12 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         JSONArray products = new JSONArray();
 
         orderJSON = new JSONObject();
-//        orderJSON.put("id", )
-    }
+        orderJSON.put("id", UUID.randomUUID().toString());
+        orderJSON.put("name", username);
+        orderJSON.put("sum", 0);
+        orderJSON.put("date", "");
+        orderJSON.put("products", products);
 
-    public void sumPlus(int amount) {
-        sumPrice += amount;
-    }
-
-    public void sumMinus(int amount) {
-        sumPrice += amount;
+        Log.i(TAG, String.valueOf(orderJSON));
     }
 }
