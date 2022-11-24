@@ -136,35 +136,32 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item)
     {
+        String message;
+
         switch (item.getItemId()) {
             case R.id.order_list:
 
                 break;
             case R.id.send_sms:
-                StringBuilder message = new StringBuilder();
-                try
-                {
-                    message.append("Sum: ").append(String.valueOf(orderJSON.getInt("sum"))).append("$");
-                    JSONArray jarray = orderJSON.getJSONArray("products");
-                    message.append("\n");
-                    for (int i = 0; i < jarray.length(); i++) {
-                        JSONObject obj = jarray.getJSONObject(i);
-                        message.append("\n").append(obj.getString("name")).append(", ").append(obj.getInt("price")).append("$ x ").append(obj.getInt("qty"));
-                    }
-                } catch (JSONException e)
-                {
-                    e.printStackTrace();
-                }
+                message = createNiceOrderOutput().toString();
 
                 Intent smsIntent = new Intent(Intent.ACTION_SENDTO);
                 smsIntent.setData(Uri.parse("smsto:"));
-                smsIntent.putExtra("sms_body", message.toString());
-                
+                smsIntent.putExtra("sms_body", message);
+
                 Log.i(TAG, "Sending SMS");
                 startActivity(smsIntent);
                 break;
             case R.id.send_email:
+                message = createNiceOrderOutput().toString();
 
+                Intent emailIntent = new Intent(Intent.ACTION_SENDTO);
+                emailIntent.setData(Uri.parse("mailto: "));
+                emailIntent.putExtra(Intent.EXTRA_SUBJECT, "Shop order");
+                emailIntent.putExtra(Intent.EXTRA_TEXT, message);
+
+                Log.i(TAG, "Sending EMAIL");
+                startActivity(emailIntent);
                 break;
             case R.id.share:
 
@@ -294,5 +291,23 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         orderJSON.put("products", products);
 
         Log.i(TAG, String.valueOf(orderJSON));
+    }
+
+    private StringBuilder createNiceOrderOutput() {
+        StringBuilder message = new StringBuilder();
+        try
+        {
+            message.append("Sum: ").append(String.valueOf(orderJSON.getInt("sum"))).append("$");
+            JSONArray jarray = orderJSON.getJSONArray("products");
+            message.append("\n");
+            for (int i = 0; i < jarray.length(); i++) {
+                JSONObject obj = jarray.getJSONObject(i);
+                message.append("\n").append(obj.getString("name")).append(", ").append(obj.getInt("price")).append("$ x ").append(obj.getInt("qty"));
+            }
+        } catch (JSONException e)
+        {
+            e.printStackTrace();
+        }
+        return message;
     }
 }
