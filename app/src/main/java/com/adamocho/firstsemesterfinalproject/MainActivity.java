@@ -5,6 +5,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
@@ -12,8 +13,10 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.Button;
 import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.android.material.slider.Slider;
 
@@ -40,6 +43,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     LinearLayoutManager linearLayoutManager;
     TextView sumPriceView;
     Slider slider;
+    Button placeOrderBtn;
 
     JSONObject orderJSON;
 
@@ -85,6 +89,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         recyclerView = findViewById(R.id.acc_recycler_view);
         sumPriceView = findViewById(R.id.sum_price_view);
         slider = findViewById(R.id.main_slider);
+        placeOrderBtn = findViewById(R.id.order_btn);
 
         camera_desc = getResources().getStringArray(R.array.camera_desc);
         acc_desc = getResources().getStringArray(R.array.accessories_desc);
@@ -110,6 +115,11 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
 //            refreshOrderPrice();
             refreshOrderPriceWithJSON();
+        });
+        
+        placeOrderBtn.setOnClickListener(view -> {
+            Toast.makeText(this, "Order placed", Toast.LENGTH_SHORT).show();
+            Log.i(TAG, "Order placed");
         });
     }
 
@@ -152,7 +162,8 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 //            }
                 break;
             case R.id.about:
-
+                Intent intent = new Intent(this, AboutActivity.class);
+                startActivity(intent);
                 break;
         }
 

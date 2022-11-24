@@ -10,6 +10,8 @@
     <string name="acc_text">ACCESSORIES</string>
     <string name="sum_price_label">SUM PRICE</string>
     <string name="order_btn">Place order</string>
+    <string name="about_author">Github user <b>Adamocho</b> is the creator of this app.</string>
+    <string name="about_more">App code available <a href="https://github.com/Adamocho/shopping-mobileapp">here</a></string>
 
     <string-array name="camera_desc">
         <item>Canon F1 - Professional 35mm SLR analog camera with FD lens mount.</item>
