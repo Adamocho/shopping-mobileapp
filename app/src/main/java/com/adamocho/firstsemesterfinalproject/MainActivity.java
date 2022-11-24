@@ -6,6 +6,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
@@ -140,7 +141,27 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
                 break;
             case R.id.send_sms:
+                StringBuilder message = new StringBuilder();
+                try
+                {
+                    message.append("Sum: ").append(String.valueOf(orderJSON.getInt("sum"))).append("$");
+                    JSONArray jarray = orderJSON.getJSONArray("products");
+                    message.append("\n");
+                    for (int i = 0; i < jarray.length(); i++) {
+                        JSONObject obj = jarray.getJSONObject(i);
+                        message.append("\n").append(obj.getString("name")).append(", ").append(obj.getInt("price")).append("$ x ").append(obj.getInt("qty"));
+                    }
+                } catch (JSONException e)
+                {
+                    e.printStackTrace();
+                }
 
+                Intent smsIntent = new Intent(Intent.ACTION_SENDTO);
+                smsIntent.setData(Uri.parse("smsto:"));
+                smsIntent.putExtra("sms_body", message.toString());
+                
+                Log.i(TAG, "Sending SMS");
+                startActivity(smsIntent);
                 break;
             case R.id.send_email:
 
