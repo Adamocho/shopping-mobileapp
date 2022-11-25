@@ -24,6 +24,7 @@ public class ItemAdapterImage extends RecyclerView.Adapter<ItemAdapterImage.View
     int[] item_imgs;
     boolean[] item_checked;
     Context context;
+
     int[] item_ids = {
             10,
             20,
@@ -45,6 +46,14 @@ public class ItemAdapterImage extends RecyclerView.Adapter<ItemAdapterImage.View
         this.item_checked = new boolean[item_desc.length];
     }
 
+    public boolean[] getItem_checked() {
+        return item_checked;
+    }
+
+    public void setItem_checked(boolean[] item_checked) {
+        this.item_checked = item_checked;
+    }
+
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
@@ -58,13 +67,16 @@ public class ItemAdapterImage extends RecyclerView.Adapter<ItemAdapterImage.View
         holder.textView.setText(item_desc[index]);
         holder.imageView.setImageResource(item_imgs[index]);
         holder.priceView.setText(String.format("Price: %s$", item_price[index]));
+
+        holder.checkBox.setChecked(item_checked[index]);
+
         holder.checkBox.setOnClickListener(view -> {
-            CheckBox checkBox = (CheckBox) view;
-//            Log.i(TAG, holder.getAdapterPosition() + " " + checkBox.isChecked());
+            CheckBox checkBox = holder.checkBox;
             item_checked[index] = checkBox.isChecked();
 
-            try
-            {
+//            Log.i(TAG, "Button checked: " + index + " " + item_checked[index]);
+
+            try {
                 boolean found = false;
                 JSONArray jarray = ((MainActivity) context).orderJSON.getJSONArray("products");
                 for (int i = 0; i < jarray.length(); i++) {
@@ -97,12 +109,14 @@ public class ItemAdapterImage extends RecyclerView.Adapter<ItemAdapterImage.View
         return item_imgs.length;
     }
 
-    public int getItemPrice(int index) {
-        return index >= 0 && index < item_price.length ? Integer.parseInt(item_price[index]) : 0;
+    @Override
+    public int getItemViewType(int position) {
+        return position;
     }
 
-    public boolean getItemChecked(int index) {
-        return index >= 0 && index < item_checked.length && item_checked[index];
+    @Override
+    public long getItemId(int position) {
+        return position;
     }
 
     public int getSumOfChecked() {

@@ -5,7 +5,9 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.content.ContentValues;
 import android.content.Intent;
+import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
@@ -25,6 +27,10 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.Arrays;
+import java.util.Date;
 import java.util.Locale;
 import java.util.UUID;
 
@@ -42,6 +48,8 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     String[] camera_price;
     RecyclerView recyclerView;
     LinearLayoutManager linearLayoutManager;
+    ItemAdapterImage accItemAdapter;
+    MySpinnerAdapter adapter;
     TextView sumPriceView;
     Slider slider;
     Button placeOrderBtn;
@@ -78,13 +86,9 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         dbHelper = new FeedReaderContract(this);
-        try
-        {
+        try {
             initializeJSON();
-        } catch (JSONException e)
-        {
-            e.printStackTrace();
-        }
+        } catch (JSONException e) {e.printStackTrace();}
 
         main_spinner = findViewById(R.id.main_item_spinner);
         recyclerView = findViewById(R.id.acc_recycler_view);
@@ -98,18 +102,17 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         camera_price = getResources().getStringArray(R.array.camera_price);
 
         main_spinner.setOnItemSelectedListener(this);
-        MySpinnerAdapter adapter = new MySpinnerAdapter(getApplicationContext(), camera_pics, camera_desc, camera_price);
+        adapter = new MySpinnerAdapter(getApplicationContext(), camera_pics, camera_desc, camera_price);
         main_spinner.setAdapter(adapter);
 
         linearLayoutManager = new LinearLayoutManager(getApplicationContext(), RecyclerView.HORIZONTAL, false);
         recyclerView.setLayoutManager(linearLayoutManager);
 
-        ItemAdapterImage accItemAdapter = new ItemAdapterImage(acc_desc, acc_pics, acc_price, this);
+        accItemAdapter = new ItemAdapterImage(acc_desc, acc_pics, acc_price, this);
         recyclerView.setAdapter(accItemAdapter);
 
         slider.addOnChangeListener((slider1, value, fromUser) -> {
-            try
-            {
+            try {
                 if (mainIndex != -1)
                     orderJSON.getJSONArray("products").getJSONObject(mainIndex).put("qty", value);
             } catch (JSONException e) {}
@@ -119,9 +122,49 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         });
         
         placeOrderBtn.setOnClickListener(view -> {
-            Toast.makeText(this, "Order placed", Toast.LENGTH_SHORT).show();
-            Log.i(TAG, "Order placed");
+            try {
+                if (orderJSON.getInt("sum") > 0) {
+                    Toast.makeText(this, "Order placed", Toast.LENGTH_SHORT).show();
+                    Log.i(TAG, "Order placed");
+
+                    slider.setValue(slider.getValueFrom());
+
+                    boolean isChanged = false;
+                    boolean[] b_array = accItemAdapter.getItem_checked();
+                    for (boolean b : b_array)
+                        if (b) {
+                            isChanged = true;
+        //                    Log.i(TAG, "Something changed");
+                            break;
+                        }
+
+                    if (isChanged) {
+                        Arrays.fill(b_array, false);
+
+        //                Log.i(TAG, "Clearing every acc item...");
+                        accItemAdapter.setItem_checked(b_array);
+                        accItemAdapter.notifyDataSetChanged();
+                    }
+
+                    DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");
+                    LocalDateTime now = LocalDateTime.now();
+                    orderJSON.put("date", dateTimeFormatter.format(now));
+
+                    // Adding to the database
+                    SQLiteDatabase db = dbHelper.getWritableDatabase();
+                    ContentValues values = new ContentValues();
+                    values.put(FeedReaderContract.FeedEntry.COLUMN_DATA, orderJSON.toString());
+                    db.insert(FeedReaderContract.FeedEntry.TABLE_NAME, null, values);
+
+                    orderJSON.put("id", UUID.randomUUID());
+                    orderJSON.put("sum", 0);
+                    orderJSON.put("date", "");
+                    orderJSON.put("products", new JSONArray());
+                }
+            } catch (JSONException e) {e.printStackTrace();}
+            refreshOrderPriceWithJSON();
         });
+
     }
 
     @Override
@@ -164,10 +207,14 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                 startActivity(emailIntent);
                 break;
             case R.id.share:
-
+                Intent sharedIntent = new Intent(Intent.ACTION_SEND);
+                sharedIntent.putExtra(Intent.EXTRA_TEXT, createNiceOrderOutput().toString());
+                sharedIntent.setType("text/plain");
+                startActivity(Intent.createChooser(sharedIntent, "Hello there"));
                 break;
             case R.id.settings:
-
+                Intent settingsIntent = new Intent(this, SettingsActivity.class);
+                startActivity(settingsIntent);
                 break;
             case R.id.log_out:
 //            { for testing only
@@ -239,13 +286,9 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 //        Log.i(TAG, "refreshing order price..");
 
         sumPriceView.setText(String.format(Locale.US, "%d$", sumPrice));
-        try
-        {
+        try {
             orderJSON.put("sum", sumPrice);
-        } catch (JSONException e)
-        {
-            e.printStackTrace();
-        }
+        } catch (JSONException e) {e.printStackTrace();}
     }
 
     public void refreshOrderPriceWithJSON() {
@@ -276,7 +319,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 //          If id inside the JSON will be needed
 //        SQLiteDatabase db = dbHelper.getReadableDatabase();
 //        Cursor cursor = db.rawQuery("SELECT COUNT(*) FROM " + FeedReaderContract.FeedEntry.TABLE_NAME, null);
-//        cursor.moveToFirst();   <-- This is so f**king bad
+//        cursor.moveToFirst();   <-- This is so bad
 //        int db_length = cursor.getInt(0);
 //        cursor.close();
 //        db.close();
@@ -295,8 +338,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
     private StringBuilder createNiceOrderOutput() {
         StringBuilder message = new StringBuilder();
-        try
-        {
+        try {
             message.append("Sum: ").append(String.valueOf(orderJSON.getInt("sum"))).append("$");
             JSONArray jarray = orderJSON.getJSONArray("products");
             message.append("\n");
@@ -304,10 +346,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                 JSONObject obj = jarray.getJSONObject(i);
                 message.append("\n").append(obj.getString("name")).append(", ").append(obj.getInt("price")).append("$ x ").append(obj.getInt("qty"));
             }
-        } catch (JSONException e)
-        {
-            e.printStackTrace();
-        }
+        } catch (JSONException e) {e.printStackTrace();}
         return message;
     }
 }
