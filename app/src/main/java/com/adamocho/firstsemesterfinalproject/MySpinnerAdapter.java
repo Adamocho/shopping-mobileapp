@@ -55,8 +55,7 @@ public class MySpinnerAdapter extends BaseAdapter {
         priceView = view.findViewById(R.id.spinner_price_view);
         imageView.setImageResource(img[i]);
         textView.setText(desc[i]);
-        priceView.setText(String.format("Price: %s$", price[i]));
-
+        priceView.setText(String.format(context.getResources().getString(R.string.price) + ": %s$", price[i]));
         return view;
     }
 }

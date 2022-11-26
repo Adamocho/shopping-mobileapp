@@ -56,7 +56,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
     JSONObject orderJSON;
 
-    public static final String username = "Johnny";
+    public String username;
 
     int[] camera_pics = {
             R.drawable.canon_f1,
@@ -85,10 +85,13 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
         dbHelper = new FeedReaderContract(this);
         try {
             initializeJSON();
         } catch (JSONException e) {e.printStackTrace();}
+
+        username = getIntent().getStringExtra("username");
 
         main_spinner = findViewById(R.id.main_item_spinner);
         recyclerView = findViewById(R.id.acc_recycler_view);
@@ -180,55 +183,63 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item)
     {
-        String message;
+        StringBuilder message;
 
         switch (item.getItemId()) {
             case R.id.order_list:
                 Intent listingIntent = new Intent(this, ListActivity.class);
+                listingIntent.putExtra("username", username);
                 startActivity(listingIntent);
                 break;
             case R.id.send_sms:
-                message = createNiceOrderOutput().toString();
+                message = createNiceOrderOutput();
 
-                Intent smsIntent = new Intent(Intent.ACTION_SENDTO);
-                smsIntent.setData(Uri.parse("smsto:"));
-                smsIntent.putExtra("sms_body", message);
+                if (message != null) {
+                    Intent smsIntent = new Intent(Intent.ACTION_SENDTO);
+                    smsIntent.setData(Uri.parse("smsto:"));
+                    smsIntent.putExtra("sms_body", message.toString());
 
-                Log.i(TAG, "Sending SMS");
-                startActivity(smsIntent);
+                    Log.i(TAG, "Sending SMS");
+                    startActivity(smsIntent);
+                } else {
+                    Toast.makeText(this, getResources().getString(R.string.sumiszero), Toast.LENGTH_SHORT).show();
+                }
                 break;
             case R.id.send_email:
-                message = createNiceOrderOutput().toString();
+                message = createNiceOrderOutput();
 
-                Intent emailIntent = new Intent(Intent.ACTION_SENDTO);
-                emailIntent.setData(Uri.parse("mailto: "));
-                emailIntent.putExtra(Intent.EXTRA_SUBJECT, "Shop order");
-                emailIntent.putExtra(Intent.EXTRA_TEXT, message);
+                if (message != null) {
+                    Intent emailIntent = new Intent(Intent.ACTION_SENDTO);
+                    emailIntent.setData(Uri.parse("mailto: "));
+                    emailIntent.putExtra(Intent.EXTRA_SUBJECT, "Shop order");
+                    emailIntent.putExtra(Intent.EXTRA_TEXT, message.toString());
 
-                Log.i(TAG, "Sending EMAIL");
-                startActivity(emailIntent);
+                    Log.i(TAG, "Sending EMAIL");
+                    startActivity(emailIntent);
+                } else {
+                    Toast.makeText(this, getResources().getString(R.string.sumiszero), Toast.LENGTH_SHORT).show();
+                }
                 break;
             case R.id.share:
-                Intent sharedIntent = new Intent(Intent.ACTION_SEND);
-                sharedIntent.putExtra(Intent.EXTRA_TEXT, createNiceOrderOutput().toString());
-                sharedIntent.setType("text/plain");
-                startActivity(Intent.createChooser(sharedIntent, "Hello there"));
+                message = createNiceOrderOutput();
+
+                if (message != null) {
+                    Intent sharedIntent = new Intent(Intent.ACTION_SEND);
+                    sharedIntent.putExtra(Intent.EXTRA_TEXT, createNiceOrderOutput().toString());
+                    sharedIntent.setType("text/plain");
+                    startActivity(Intent.createChooser(sharedIntent, "Sharing order"));
+                } else {
+                    Toast.makeText(this, getResources().getString(R.string.sumiszero), Toast.LENGTH_SHORT).show();
+                }
                 break;
             case R.id.settings:
                 Intent settingsIntent = new Intent(this, SettingsActivity.class);
                 startActivity(settingsIntent);
                 break;
             case R.id.log_out:
-//          for testing only
-            {
-                SQLiteDatabase db = dbHelper.getWritableDatabase();
-
-                ContentValues values = new ContentValues();
-                values.put(FeedReaderContract.FeedEntry.COLUMN_DATA, orderJSON.toString());
-                values.put(FeedReaderContract.FeedEntry.COLUMN_BUYER, username);
-                db.insert(FeedReaderContract.FeedEntry.TABLE_NAME, null, values);
-                db.close();
-            }
+                Intent loginIntent = new Intent(this, LoginActivity.class);
+                loginIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NO_HISTORY);
+                startActivity(loginIntent);
                 break;
             case R.id.about:
                 Intent intent = new Intent(this, AboutActivity.class);
@@ -320,14 +331,6 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     }
 
     private void initializeJSON() throws JSONException {
-//          If id inside the JSON will be needed
-//        SQLiteDatabase db = dbHelper.getReadableDatabase();
-//        Cursor cursor = db.rawQuery("SELECT COUNT(*) FROM " + FeedReaderContract.FeedEntry.TABLE_NAME, null);
-//        cursor.moveToFirst();   <-- This is so bad
-//        int db_length = cursor.getInt(0);
-//        cursor.close();
-//        db.close();
-
         JSONArray products = new JSONArray();
 
         orderJSON = new JSONObject();
@@ -343,12 +346,16 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     private StringBuilder createNiceOrderOutput() {
         StringBuilder message = new StringBuilder();
         try {
-            message.append("Sum: ").append(String.valueOf(orderJSON.getInt("sum"))).append("$");
-            JSONArray jarray = orderJSON.getJSONArray("products");
-            message.append("\n");
-            for (int i = 0; i < jarray.length(); i++) {
-                JSONObject obj = jarray.getJSONObject(i);
-                message.append("\n").append(obj.getString("name")).append(", ").append(obj.getInt("price")).append("$ x ").append(obj.getInt("qty"));
+            if (orderJSON.getInt("sum") > 0) {
+                message.append(getResources().getString(R.string.sum) + ": ").append(String.valueOf(orderJSON.getInt("sum"))).append("$");
+                JSONArray jarray = orderJSON.getJSONArray("products");
+                message.append("\n");
+                for (int i = 0; i < jarray.length(); i++) {
+                    JSONObject obj = jarray.getJSONObject(i);
+                    message.append("\n").append(obj.getString("name")).append(", ").append(obj.getInt("price")).append("$ x ").append(obj.getInt("qty"));
+                }
+            } else {
+                return null;
             }
         } catch (JSONException e) {e.printStackTrace();}
         return message;

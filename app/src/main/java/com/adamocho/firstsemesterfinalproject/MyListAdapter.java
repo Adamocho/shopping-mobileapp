@@ -1,7 +1,6 @@
 package com.adamocho.firstsemesterfinalproject;
 
 import static com.adamocho.firstsemesterfinalproject.MainActivity.TAG;
-import static com.adamocho.firstsemesterfinalproject.MainActivity.username;
 
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
@@ -14,9 +13,7 @@ import android.widget.Button;
 import android.widget.TextView;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class MyListAdapter extends BaseAdapter {
 
@@ -64,10 +61,10 @@ public class MyListAdapter extends BaseAdapter {
         textView.setText(orders[i]);
         cancelBtn.setOnClickListener(v -> {
             String id = orders[i].split("\"")[3].trim();
-            Log.i(TAG, "Canceling item with id: " + id);
+//            Log.i(TAG, "Canceling item with id: " + id);
 
             deleteId(id);
-            Log.i(TAG, "Order canceled");
+//            Log.i(TAG, "Order canceled");
         });
 
         return view;
@@ -78,7 +75,7 @@ public class MyListAdapter extends BaseAdapter {
         String selection = FeedReaderContract.FeedEntry.COLUMN_DATA + " LIKE ?";
         String[] selectionArgs = { "%" + id + "%" };
         int deletedRows = db.delete(FeedReaderContract.FeedEntry.TABLE_NAME, selection, selectionArgs);
-        Log.i(TAG, "deleteId: DELETED " + deletedRows + " number of rows");
+//        Log.i(TAG, "deleteId: DELETED " + deletedRows + " number of rows");
         db.close();
 
         if (deletedRows > 0) {
@@ -86,7 +83,7 @@ public class MyListAdapter extends BaseAdapter {
             for (String order : orders)
                 if (!order.contains(id))
                     newOrders.add(order);
-            
+
             orders = newOrders.toArray(new String[0]);
             this.notifyDataSetChanged();
         }

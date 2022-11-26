@@ -1,7 +1,6 @@
 package com.adamocho.firstsemesterfinalproject;
 
 import static com.adamocho.firstsemesterfinalproject.MainActivity.TAG;
-import static com.adamocho.firstsemesterfinalproject.MainActivity.username;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -21,6 +20,7 @@ public class ListActivity extends AppCompatActivity
     ListView listView;
     FeedReaderContract dbHelper;
     SQLiteDatabase db;
+    String username;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -29,6 +29,8 @@ public class ListActivity extends AppCompatActivity
         setContentView(R.layout.activity_list);
 
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
+        username = getIntent().getStringExtra("username");
 
         dbHelper = new FeedReaderContract(this);
         String[] ord = getJSONData();
