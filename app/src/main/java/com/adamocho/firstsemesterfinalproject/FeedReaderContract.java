@@ -12,6 +12,7 @@ public class FeedReaderContract extends SQLiteOpenHelper {
     private static final String SQL_CREATE_ENTRIES =
             "CREATE TABLE " + FeedEntry.TABLE_NAME + " (" +
             FeedEntry._ID + " INTEGER PRIMARY KEY," +
+            FeedEntry.COLUMN_BUYER + " TEXT," +
             FeedEntry.COLUMN_DATA + " TEXT)";
 
     private static final String SQL_DELETE_ENTRIES =
@@ -40,6 +41,7 @@ public class FeedReaderContract extends SQLiteOpenHelper {
 
     public static class FeedEntry implements BaseColumns {
         public static final String TABLE_NAME = "orders";
+        public static final String COLUMN_BUYER = "buyer";
         public static final String COLUMN_DATA = "data";
     }
 }

@@ -125,7 +125,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             try {
                 if (orderJSON.getInt("sum") > 0) {
                     Toast.makeText(this, "Order placed", Toast.LENGTH_SHORT).show();
-                    Log.i(TAG, "Order placed");
+//                    Log.i(TAG, "Order placed");
 
                     slider.setValue(slider.getValueFrom());
 
@@ -154,6 +154,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                     SQLiteDatabase db = dbHelper.getWritableDatabase();
                     ContentValues values = new ContentValues();
                     values.put(FeedReaderContract.FeedEntry.COLUMN_DATA, orderJSON.toString());
+                    values.put(FeedReaderContract.FeedEntry.COLUMN_BUYER, username);
                     db.insert(FeedReaderContract.FeedEntry.TABLE_NAME, null, values);
 
                     orderJSON.put("id", UUID.randomUUID());
@@ -183,7 +184,8 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
         switch (item.getItemId()) {
             case R.id.order_list:
-
+                Intent listingIntent = new Intent(this, ListActivity.class);
+                startActivity(listingIntent);
                 break;
             case R.id.send_sms:
                 message = createNiceOrderOutput().toString();
@@ -217,14 +219,16 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                 startActivity(settingsIntent);
                 break;
             case R.id.log_out:
-//            { for testing only
-//                SQLiteDatabase db = dbHelper.getWritableDatabase();
-//
-//                ContentValues values = new ContentValues();
-//                values.put(FeedReaderContract.FeedEntry.COLUMN_DATA, "YES");
-//
-//                long newRowId = db.insert(FeedReaderContract.FeedEntry.TABLE_NAME, null, values);
-//            }
+//          for testing only
+            {
+                SQLiteDatabase db = dbHelper.getWritableDatabase();
+
+                ContentValues values = new ContentValues();
+                values.put(FeedReaderContract.FeedEntry.COLUMN_DATA, orderJSON.toString());
+                values.put(FeedReaderContract.FeedEntry.COLUMN_BUYER, username);
+                db.insert(FeedReaderContract.FeedEntry.TABLE_NAME, null, values);
+                db.close();
+            }
                 break;
             case R.id.about:
                 Intent intent = new Intent(this, AboutActivity.class);
@@ -269,15 +273,15 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             previous = position;
         } catch (JSONException e) {}
 
-        Log.i(TAG, "JSON: " + orderJSON);
-        Log.i(TAG, "Item " + position + " selected. Base price: " + basePrice);
+//        Log.i(TAG, "JSON: " + orderJSON);
+//        Log.i(TAG, "Item " + position + " selected. Base price: " + basePrice);
 //        refreshOrderPrice();
         refreshOrderPriceWithJSON();
     }
 
     @Override
     public void onNothingSelected(AdapterView<?> adapterView) {
-        Log.i(TAG, "Nothing was selected");
+//        Log.i(TAG, "Nothing was selected");
     }
 
     public void refreshOrderPrice() {
@@ -333,7 +337,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         orderJSON.put("date", "");
         orderJSON.put("products", products);
 
-        Log.i(TAG, String.valueOf(orderJSON));
+//        Log.i(TAG, String.valueOf(orderJSON));
     }
 
     private StringBuilder createNiceOrderOutput() {

@@ -96,7 +96,7 @@ public class ItemAdapterImage extends RecyclerView.Adapter<ItemAdapterImage.View
                     jarray.put(object);
                 }
 
-                Log.i(TAG, "JSON: " + ((MainActivity) context).orderJSON);
+//                Log.i(TAG, "JSON: " + ((MainActivity) context).orderJSON);
             } catch (JSONException e) {}
 
             //            ((MainActivity) context).refreshOrderPrice();
